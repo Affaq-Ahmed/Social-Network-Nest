@@ -23,7 +23,7 @@ export class User {
   followedUsers: User[];
 
   @Prop({ type: String, enum: roles, default: roles.USER })
-  role: roles;
+  userRole: string;
 
   @Prop({ type: [String], default: [] })
   tokens: string[];
