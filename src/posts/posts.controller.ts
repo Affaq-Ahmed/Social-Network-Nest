@@ -74,9 +74,16 @@ export class PostsController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete(':id')
-  async delete(@Param('id') id: string) {
-    const post = await this.postService.delete(id);
+  async delete(@Param('id') id: string, @Request() req) {
+    let post: any = null;
+    if (req.user.userRole === 'MODERATOR') {
+      post = await this.postService.deleteByModerator(id);
+    } else {
+      post = await this.postService.deleteByUser(id, req.user._id);
+    }
     return {
       Post: post,
       Message: 'Post deleted successfully',
