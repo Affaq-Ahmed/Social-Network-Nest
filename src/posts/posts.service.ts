@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Comment } from 'src/comments/comments.model';
 import { CreatePostDto } from 'src/dto/create-post.dto';
 import { UpdatePostDto } from 'src/dto/updat-post.dto';
 import { User } from 'src/users/users.model';
@@ -10,7 +11,7 @@ import { Post } from './posts.model';
 export class PostsService {
   constructor(
     @InjectModel('Posts') private readonly postModel: Model<Post>,
-    @InjectModel('Users') private readonly userModel: Model<User>,
+    @InjectModel('Comments') private readonly commentModel: Model<Comment>,
   ) {}
 
   async create(post: CreatePostDto): Promise<any> {
@@ -144,6 +145,43 @@ export class PostsService {
         throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
       }
       return post;
+    } catch (error) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async findAllComments(postId: string, user: any): Promise<any> {
+    try {
+      const post = await this.postModel.findById(postId);
+      if (!post) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+      if (
+        post.createdBy.toString() !== user._id?.toString() &&
+        !user.followedUsers?.includes(post.createdBy)
+      ) {
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      }
+      const comments = await this.commentModel.find({ postId, deleted: false });
+
+      const graph = comments.reduce((acc: any, comment: any) => {
+        acc[comment._id] = {
+          ...comment._doc,
+          replies: [],
+        };
+        return acc;
+      }, {});
+
+      graph.forEach((comment: { replyTo: string | number }) => {
+        if (comment.replyTo) {
+          graph[comment.replyTo].replies.push(comment);
+        }
+      });
+
+      return {
+        message: 'Comments found',
+        status: 200,
+      };
     } catch (error) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }

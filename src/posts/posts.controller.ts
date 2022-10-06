@@ -24,7 +24,7 @@ export class PostsController {
   @ApiBearerAuth()
   @Post()
   async create(@Body() createPostDto: CreatePostDto, @Request() req) {
-    createPostDto.author = req.user._id;
+    createPostDto.createdBy = req.user._id;
     if (req.user.userRole === 'MODERATOR') {
       return {
         Message: 'You are not allowed to create a post',
@@ -87,6 +87,16 @@ export class PostsController {
     return {
       Post: post,
       Message: 'Post deleted successfully',
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('comments/:postId')
+  async findAllComments(@Param('postId') postId: string, @Request() req) {
+    const response = await this.postService.findAllComments(postId, req.user);
+    return {
+      Comments: response,
     };
   }
 }
