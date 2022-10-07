@@ -82,13 +82,68 @@ export class PostsService {
     }
   }
 
-  async delete(id: string): Promise<Post> {
+  async deleteByModerator(id: string): Promise<Post> {
     try {
       const deletedPost = await this.postModel.findByIdAndDelete(id).exec();
       if (!deletedPost) {
         throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
       }
       return deletedPost;
+    } catch (error) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async deleteByUser(id: string, userId: string): Promise<Post> {
+    try {
+      const post = await this.postModel.findById(id);
+      if (!post) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+      if (post.createdBy.toString() !== userId.toString()) {
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      }
+      const deletedPost = await this.postModel.findByIdAndDelete(id).exec();
+      if (!deletedPost) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+      return deletedPost;
+    } catch (error) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async like(id: string, userId: string): Promise<Post> {
+    try {
+      const post = await this.postModel.findByIdAndUpdate(
+        id,
+        {
+          $addToSet: { likes: userId },
+        },
+        { new: true },
+      );
+      if (!post) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+      return post;
+    } catch (error) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async unlike(id: string, userId: string): Promise<Post> {
+    try {
+      const post = await this.postModel.findByIdAndUpdate(
+        id,
+        {
+          $pull: { likes: userId },
+        },
+        { new: true },
+      );
+      if (!post) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+      return post;
     } catch (error) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
