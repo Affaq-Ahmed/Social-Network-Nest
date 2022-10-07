@@ -11,9 +11,8 @@ import { StripeModule } from 'nestjs-stripe';
     forwardRef(() => AuthModule),
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     StripeModule.forRoot({
-      apiKey:
-        'sk_test_51LdAPlL8VPhpvdNPlK02H7pYxQT1NYeST0o2NzSszUMGdKthlx4IRbg0o4F4nMZdSJ2ZXoq2FiZeToyo9dF2DEp600OcjMmXrg',
-      apiVersion: '2020-08-27',
+      apiKey: `${process.env.STRIPE_SECRET_KEY}`,
+      apiVersion: '2022-08-01',
     }),
   ],
   controllers: [UsersController],
