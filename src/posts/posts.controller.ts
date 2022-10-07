@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -16,7 +17,7 @@ import { CreatePostDto } from 'src/dto/create-post.dto';
 import { UpdatePostDto } from 'src/dto/updat-post.dto';
 import { PostsService } from './posts.service';
 
-@Controller('posts')
+@Controller('post')
 export class PostsController {
   constructor(private readonly postService: PostsService) {}
 
@@ -24,6 +25,9 @@ export class PostsController {
   @ApiBearerAuth()
   @Post()
   async create(@Body() createPostDto: CreatePostDto, @Request() req) {
+    console.log('createPostDto:   ', createPostDto);
+    console.log('req.user:    ', req.user);
+    console.log(req.user.userId);
     createPostDto.createdBy = req.user._id;
     if (req.user.userRole === 'MODERATOR') {
       return {
@@ -39,7 +43,7 @@ export class PostsController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Put('update/:id')
+  @Patch(':id')
   async update(
     @Body() updatePostDto: UpdatePostDto,
     @Param('id') id: string,

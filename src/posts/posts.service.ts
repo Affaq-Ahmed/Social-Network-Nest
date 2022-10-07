@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import { Comment } from 'src/comments/comments.model';
 import { CreatePostDto } from 'src/dto/create-post.dto';
 import { UpdatePostDto } from 'src/dto/updat-post.dto';
-import { User } from 'src/users/users.model';
 import { Post } from './posts.model';
 
 @Injectable()
@@ -20,7 +19,10 @@ export class PostsService {
       const createdPost = await newPost.save();
       return createdPost;
     } catch (error) {
-      throw new HttpException('Post not created', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Post not created',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

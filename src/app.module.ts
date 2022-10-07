@@ -11,10 +11,10 @@ import { MongooseModule } from '@nestjs/mongoose';
   imports: [
     AuthModule,
     UsersModule,
-    PostsModule,
-    CommentsModule,
+    // PostsModule,
+    // CommentsModule,
     MongooseModule.forRoot(
-      `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@mycluster.ryf6a.mongodb.net/${process.env.MONGODB_DB}?retryWrites=true&w=majority`,
+      `mongodb+srv://Affaq:Affaq165@mycluster.ryf6a.mongodb.net/Social_Network_Nest?retryWrites=true&w=majority`,
     ),
   ],
   controllers: [AppController],

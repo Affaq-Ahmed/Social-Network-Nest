@@ -9,8 +9,8 @@ import { Comment } from './comments.model';
 @Injectable()
 export class CommentsService {
   constructor(
-    @InjectModel('Posts') private readonly postModel: Model<Post>,
-    @InjectModel('Users') private readonly userModel: Model<User>,
+    // @InjectModel('Posts') private readonly postModel: Model<Post>,
+    // @InjectModel('Users') private readonly userModel: Model<User>,
     @InjectModel('Comments') private readonly commentModel: Model<Comment>,
   ) {}
 
