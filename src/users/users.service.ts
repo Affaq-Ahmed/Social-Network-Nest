@@ -64,6 +64,53 @@ export class UsersService {
     }
   }
 
+  async follow(userToFollow: string, user: any): Promise<any> {
+    try {
+      if (user.followedUsers.includes(userToFollow)) {
+        throw new GatewayTimeoutException('Already following');
+      }
+
+      const returnedUser = await this.userModel
+        .updateOne(
+          { _id: user._id },
+          { $push: { followedUsers: userToFollow } },
+        )
+        .exec();
+      return returnedUser;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async unfollow(userToUnfollow: string, user: any): Promise<any> {
+    try {
+      if (!user.followedUsers.includes(userToUnfollow)) {
+        throw new GatewayTimeoutException('Not following');
+      }
+      const returnedUser = await this.userModel
+        .updateOne(
+          { _id: user._id },
+          { $pull: { followedUsers: userToUnfollow } },
+        )
+        .exec();
+
+      return returnedUser;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getFollowedUsers(user: any): Promise<User[]> {
+    try {
+      const followedUsers = await this.userModel
+        .find({ _id: { $in: user.followedUsers } })
+        .exec();
+      return followedUsers;
+    } catch (error) {
+      return null;
+    }
+  }
+
   async payment(paymentDto: PaymentDto, user: any): Promise<User> {
     try {
       const paymentMethod = await this.stripeClient.paymentMethods.create({

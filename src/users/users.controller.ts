@@ -88,4 +88,28 @@ export class UsersController {
   async payment(@Body() paymentDto: PaymentDto, @Request() req) {
     return this.userService.payment(paymentDto, req.user);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('follow/:id')
+  async follow(@Param('id') id: string, @Request() req) {
+    if (req.user._id === id) {
+      return {
+        Message: 'You cannot follow yourself',
+      };
+    }
+    return this.userService.follow(id, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('unfollow/:id')
+  async unfollow(@Param('id') id: string, @Request() req) {
+    if (req.user._id === id) {
+      return {
+        Message: 'You cannot unfollow yourself',
+      };
+    }
+    return this.userService.unfollow(id, req.user);
+  }
 }
