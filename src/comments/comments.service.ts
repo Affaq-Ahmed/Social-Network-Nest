@@ -26,10 +26,8 @@ export class CommentsService {
 
   async delete(id: string, userId: string): Promise<any> {
     try {
+      //delete the comment if the user is the owner of the comment
       const comment = await this.commentModel.findById(id);
-      if (!comment) {
-        throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
-      }
       if (comment.createdBy.toString() !== userId) {
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
       }

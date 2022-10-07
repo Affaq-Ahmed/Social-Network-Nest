@@ -36,6 +36,7 @@ export class CommentsController {
     const response = await this.commentService.delete(commentId, req.user._id);
     return {
       Message: response,
+      Status: 200,
     };
   }
 
@@ -47,10 +48,12 @@ export class CommentsController {
     if (response.length === 0) {
       return {
         Message: 'No comments found',
+        Status: 200,
       };
     }
     return {
       Comments: response,
+      Status: 200,
     };
   }
 

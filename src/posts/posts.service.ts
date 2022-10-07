@@ -164,7 +164,7 @@ export class PostsService {
       }
       const comments = await this.commentModel.find({ postId, deleted: false });
 
-      const graph = comments.reduce((acc: any, comment: any) => {
+      const graphOfComments = comments.reduce((acc: any, comment: any) => {
         acc[comment._id] = {
           ...comment._doc,
           replies: [],
@@ -172,9 +172,9 @@ export class PostsService {
         return acc;
       }, {});
 
-      graph.forEach((comment: { replyTo: string | number }) => {
+      graphOfComments.forEach((comment: { replyTo: string | number }) => {
         if (comment.replyTo) {
-          graph[comment.replyTo].replies.push(comment);
+          graphOfComments[comment.replyTo].replies.push(comment);
         }
       });
 
