@@ -10,7 +10,7 @@ export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   email: string;
 
   @Prop({ required: true })
@@ -23,7 +23,7 @@ export class User {
   followedUsers: User[];
 
   @Prop({ type: String, enum: roles, default: roles.USER })
-  role: roles;
+  userRole: string;
 
   @Prop({ type: [String], default: [] })
   tokens: string[];
