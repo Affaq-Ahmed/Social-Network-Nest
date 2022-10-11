@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { io } from 'socket.io-client';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreatePostDto } from 'src/dto/create-post.dto';
 import { UpdatePostDto } from 'src/dto/updat-post.dto';
@@ -31,9 +32,17 @@ export class PostsController {
       };
     }
     const response = await this.postService.create(createPostDto);
+    if (response) {
+      const socket = io();
+      const payload = { Post: response, User: req.user };
+      socket.emit('newPost', payload);
+      return {
+        Post: response,
+        Message: 'Post created successfully',
+      };
+    }
     return {
-      Post: response,
-      Message: 'Post created successfully',
+      Message: 'Post creation failed',
     };
   }
 
@@ -91,6 +100,11 @@ export class PostsController {
   @ApiBearerAuth()
   @Get('feed')
   async feed(@Request() req) {
+    if (!req.user.paid) {
+      return {
+        Message: 'You are not allowed to view this content. Buy a subscription',
+      };
+    }
     const posts = await this.postService.feed(req.user.followedUsers);
     return {
       Posts: posts,
