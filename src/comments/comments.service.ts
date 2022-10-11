@@ -1,16 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { CreateCommentDto } from 'src/dto/create-comment.dto';
-import { Post } from 'src/posts/posts.model';
-import { User } from 'src/users/users.model';
+
 import { Comment } from './comments.model';
 
 @Injectable()
 export class CommentsService {
   constructor(
-    // @InjectModel('Posts') private readonly postModel: Model<Post>,
-    // @InjectModel('Users') private readonly userModel: Model<User>,
     @InjectModel('Comments') private readonly commentModel: Model<Comment>,
   ) {}
 
