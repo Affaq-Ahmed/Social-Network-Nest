@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreateCommentDto } from 'src/dto/create-comment.dto';
 import { Post } from 'src/posts/posts.model';
 import { User } from 'src/users/users.model';
@@ -16,17 +16,20 @@ export class CommentsService {
 
   async create(comment: CreateCommentDto): Promise<any> {
     try {
+      console.log(comment);
       const newComment = new this.commentModel(comment);
       const createdComment = await newComment.save();
       return createdComment;
     } catch (error) {
-      throw new HttpException('Comment not created', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Comment not created',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   async delete(id: string, userId: string): Promise<any> {
     try {
-      //delete the comment if the user is the owner of the comment
       const comment = await this.commentModel.findById(id);
       if (comment.createdBy.toString() !== userId) {
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
@@ -34,19 +37,23 @@ export class CommentsService {
       await this.commentModel.findByIdAndDelete(id).exec();
       return 'Comment deleted successfully';
     } catch (error) {
-      throw new HttpException('Comment not deleted', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Comment not deleted',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   async findAll(postId: string): Promise<Comment[]> {
     try {
-      const comments = await this.commentModel
-        .find({ postId: postId })
-        .populate('createdBy')
-        .exec();
+      const comments = await this.commentModel.find({ postId: postId }).exec();
+      console.log(comments);
       return comments;
     } catch (error) {
-      throw new HttpException('Comments not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Comments not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -58,7 +65,10 @@ export class CommentsService {
 
       return createdReply;
     } catch (error) {
-      throw new HttpException('Reply not created', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Reply not created',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -66,11 +76,14 @@ export class CommentsService {
     try {
       const replies = await this.commentModel
         .find({ parentCommentId: commentId })
-        .populate('createdBy')
         .exec();
+      console.log(replies);
       return replies;
     } catch (error) {
-      throw new HttpException('Replies not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Replies not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

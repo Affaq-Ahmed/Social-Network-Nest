@@ -14,9 +14,9 @@ export class Comment {
   createdBy: User;
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'Post', required: true })
-  post: Post;
+  postId: Post;
 
-  @Prop({ type: mongoose.Types.ObjectId, default: null })
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'Comment', default: null })
   parentCommentId: string;
 
   @Prop({ default: false })

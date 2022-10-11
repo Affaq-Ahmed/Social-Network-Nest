@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Comment } from 'src/comments/comments.model';
+import { Comment, CommentDocument } from 'src/comments/comments.model';
 import { CreatePostDto } from 'src/dto/create-post.dto';
 import { UpdatePostDto } from 'src/dto/updat-post.dto';
 import { Post } from './posts.model';
@@ -40,7 +40,10 @@ export class PostsService {
 
       return posts;
     } catch (error) {
-      throw new HttpException('Posts not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Posts not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -52,7 +55,10 @@ export class PostsService {
       }
       return post;
     } catch (error) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Post not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -81,7 +87,10 @@ export class PostsService {
       }
       return updatedPost;
     } catch (error) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Post not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -93,7 +102,10 @@ export class PostsService {
       }
       return deletedPost;
     } catch (error) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Post not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -112,7 +124,10 @@ export class PostsService {
       }
       return deletedPost;
     } catch (error) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Post not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -122,6 +137,7 @@ export class PostsService {
         id,
         {
           $addToSet: { likes: userId },
+          count: { $inc: 1 },
         },
         { new: true },
       );
@@ -130,7 +146,10 @@ export class PostsService {
       }
       return post;
     } catch (error) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Post not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -140,6 +159,7 @@ export class PostsService {
         id,
         {
           $pull: { likes: userId },
+          count: { $inc: -1 },
         },
         { new: true },
       );
@@ -148,13 +168,30 @@ export class PostsService {
       }
       return post;
     } catch (error) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Post not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async feed(followedUsers: [string]): Promise<Post[]> {
+    try {
+      const posts = await this.postModel
+        .find({ createdBy: { $in: followedUsers } })
+        .exec();
+      return posts;
+    } catch (error) {
+      throw new HttpException(
+        'Posts not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   async findAllComments(postId: string, user: any): Promise<any> {
     try {
-      const post = await this.postModel.findById(postId);
+      const post = await this.postModel.findById(postId).exec();
       if (!post) {
         throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
       }
@@ -164,7 +201,9 @@ export class PostsService {
       ) {
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
       }
-      const comments = await this.commentModel.find({ postId, deleted: false });
+      const comments = await this.commentModel
+        .find({ postId, deleted: false })
+        .exec();
 
       const graphOfComments = comments.reduce((acc: any, comment: any) => {
         acc[comment._id] = {
@@ -174,18 +213,28 @@ export class PostsService {
         return acc;
       }, {});
 
-      graphOfComments.forEach((comment: { replyTo: string | number }) => {
-        if (comment.replyTo) {
-          graphOfComments[comment.replyTo].replies.push(comment);
+      const commentsWithReplies = comments.reduce((acc: any, comment: any) => {
+        if (comment.parentCommentId) {
+          graphOfComments[comment.parentCommentId].replies.push(
+            graphOfComments[comment._id],
+          );
+        } else {
+          acc.push(graphOfComments[comment._id]);
         }
-      });
+        return acc;
+      }, []);
+      console.log(commentsWithReplies);
 
       return {
+        comments: graphOfComments,
         message: 'Comments found',
         status: 200,
       };
     } catch (error) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Something Went Wrong.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

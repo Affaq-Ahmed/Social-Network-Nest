@@ -116,4 +116,11 @@ export class UsersController {
     }
     return this.userService.unfollow(id, req.user);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('followed')
+  async getFollowed(@Request() req) {
+    return this.userService.getFollowedUsers(req.user);
+  }
 }

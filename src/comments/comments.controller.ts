@@ -81,6 +81,7 @@ export class CommentsController {
   @Get('replies/:commentId')
   async findReplies(@Param('commentId') commentId: string) {
     const response = await this.commentService.findReplies(commentId);
+    console.log(response);
     if (response.length === 0) {
       return {
         Message: 'No replies found',

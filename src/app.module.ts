@@ -12,7 +12,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     AuthModule,
     UsersModule,
     // PostsModule,
-    // CommentsModule,
+    CommentsModule,
     MongooseModule.forRoot(
       `mongodb+srv://Affaq:Affaq165@mycluster.ryf6a.mongodb.net/Social_Network_Nest?retryWrites=true&w=majority`,
     ),

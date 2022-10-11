@@ -25,9 +25,6 @@ export class PostsController {
   @ApiBearerAuth()
   @Post()
   async create(@Body() createPostDto: CreatePostDto, @Request() req) {
-    console.log('createPostDto:   ', createPostDto);
-    console.log('req.user:    ', req.user);
-    console.log(req.user.userId);
     createPostDto.createdBy = req.user._id;
     if (req.user.userRole === 'MODERATOR') {
       return {
@@ -60,12 +57,43 @@ export class PostsController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Patch('like/:id')
+  async like(@Param('id') id: string, @Request() req) {
+    const response = await this.postService.like(id, req.user._id);
+    return {
+      Post: response,
+      Message: 'Post liked successfully',
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async unlike(@Param('id') id: string, @Request() req) {
+    const response = await this.postService.unlike(id, req.user._id);
+    return {
+      Post: response,
+      Message: 'Post unliked successfully',
+    };
+  }
+
   @Get()
   async findAll(@Query('page') page: string, @Query('limit') limit: string) {
     const posts = await this.postService.findAll(page, limit);
     const count = posts.length;
     return {
       Count: count,
+      Posts: posts,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('feed')
+  async feed(@Request() req) {
+    const posts = await this.postService.feed(req.user.followedUsers);
+    return {
       Posts: posts,
     };
   }
