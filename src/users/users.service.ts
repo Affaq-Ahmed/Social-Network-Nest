@@ -7,6 +7,7 @@ import { UpdateUserDto } from 'src/dto/update-user.dto';
 import { User } from './users.model';
 import { InjectStripe } from 'nestjs-stripe';
 import { Stripe } from 'stripe';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +17,16 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const newUser = new this.userModel(createUserDto);
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      saltOrRounds,
+    );
+
+    const newUser = new this.userModel(
+      createUserDto,
+      // password: hashedPassword,
+    );
     const createdUser = await newUser.save();
     return createdUser;
   }
@@ -131,8 +141,9 @@ export class UsersService {
       });
 
       if (paymentIntent.status === 'succeeded') {
-        user.paid = true;
-        const returnedUser = await user.save();
+        const returnedUser = await this.userModel.findByIdAndUpdate(user._id, {
+          $set: { paid: true },
+        });
 
         return returnedUser;
       } else {

@@ -19,7 +19,7 @@ export class User {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
+  @Prop({ type: [mongoose.Types.ObjectId], ref: 'User', default: [] })
   followedUsers: User[];
 
   @Prop({ type: String, enum: roles, default: roles.USER })

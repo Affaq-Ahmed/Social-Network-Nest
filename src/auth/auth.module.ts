@@ -14,7 +14,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 @Module({
   imports: [
     forwardRef(() => UsersModule),
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: 'Users', schema: UserSchema }]),
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
