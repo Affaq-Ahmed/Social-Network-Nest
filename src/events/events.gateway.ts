@@ -18,7 +18,6 @@ export class EventsGateway
 {
   @WebSocketServer()
   server: Server;
-
   private logger: Logger;
   private activeUsers;
 
@@ -31,6 +30,7 @@ export class EventsGateway
   afterInit(server: Server) {
     this.logger.log('Init');
   }
+
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);

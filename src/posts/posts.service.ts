@@ -137,6 +137,7 @@ export class PostsService {
         id,
         {
           $addToSet: { likes: userId },
+          count: { $inc: 1 },
         },
         { new: true },
       );
@@ -158,6 +159,7 @@ export class PostsService {
         id,
         {
           $pull: { likes: userId },
+          count: { $inc: -1 },
         },
         { new: true },
       );
@@ -218,8 +220,6 @@ export class PostsService {
         return acc;
       }, {});
 
-      // console.log(graphOfComments);
-
       const commentsWithReplies = comments.reduce(
         (acc: any, comment: any) => {
           console.log('111', comment.parentCommentId);
@@ -236,9 +236,6 @@ export class PostsService {
         },
         [graphOfComments],
       );
-      console.log('graphOfComments', graphOfComments);
-      console.log('commentsWIthReplies', commentsWithReplies);
-      console.log('adasdf');
 
       return {
         post: post,

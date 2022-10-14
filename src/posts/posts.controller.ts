@@ -105,7 +105,8 @@ export class PostsController {
   @ApiBearerAuth()
   @Get('feed')
   async feed(@Request() req) {
-    if (req.user.paid) {
+
+    if (!req.user.paid) {
       return {
         Message: 'You are not allowed to view this content. Buy a subscription',
       };
