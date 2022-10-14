@@ -18,14 +18,14 @@ import { LoginUserDto } from 'src/dto/login-user.dto';
 import { PaymentDto } from 'src/dto/payment.dto';
 import { UsersService } from './users.service';
 
-@Controller('users')
+@Controller('user')
 export class UsersController {
   constructor(
     private readonly userService: UsersService,
     private readonly authService: AuthService,
   ) {}
 
-  @Post()
+  @Post('signup')
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.userService.create(createUserDto);
     return {
@@ -86,7 +86,11 @@ export class UsersController {
   @ApiBearerAuth()
   @Post('payment')
   async payment(@Body() paymentDto: PaymentDto, @Request() req) {
-    return this.userService.payment(paymentDto, req.user);
+    const response = this.userService.payment(paymentDto, req.user);
+    return {
+      Message: 'Payment successful',
+      response,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -111,5 +115,12 @@ export class UsersController {
       };
     }
     return this.userService.unfollow(id, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('followed')
+  async getFollowed(@Request() req) {
+    return this.userService.getFollowedUsers(req.user);
   }
 }

@@ -16,13 +16,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     console.log(`JwtStrategy.validate() payload: ${JSON.stringify(payload)}`);
-    const user = await this.authService.validateUser(
-      payload.email,
-      payload.password,
-    );
+    const user = await this.authService.validateUserEmail(payload.email);
     if (user) {
       return {
-        userId: user._id,
+        _id: user._id,
         username: user.email,
         followedUsers: user.followedUsers,
       };
