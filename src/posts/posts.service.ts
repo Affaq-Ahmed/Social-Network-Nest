@@ -205,6 +205,13 @@ export class PostsService {
         .find({ postId, deleted: false })
         .exec();
 
+      if (comments.length === 0) {
+        throw new HttpException(
+          'No Comments to show on Graph',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
       const graphOfComments = comments.reduce((acc: any, comment: any) => {
         acc[comment._id] = {
           ...comment._doc,
@@ -213,20 +220,26 @@ export class PostsService {
         return acc;
       }, {});
 
-      const commentsWithReplies = comments.reduce((acc: any, comment: any) => {
-        if (comment.parentCommentId) {
-          graphOfComments[comment.parentCommentId].replies.push(
-            graphOfComments[comment._id],
-          );
-        } else {
-          acc.push(graphOfComments[comment._id]);
-        }
-        return acc;
-      }, []);
-      console.log(commentsWithReplies);
+      const commentsWithReplies = comments.reduce(
+        (acc: any, comment: any) => {
+          console.log('111', comment.parentCommentId);
+          if (comment.parentCommentId) {
+            graphOfComments[comment.parentCommentId].replies.push(
+              graphOfComments[comment._id],
+            );
+          } else {
+            console.log('222', comment._id);
+            acc.push(graphOfComments[comment._id]);
+          }
+          console.log('333', acc);
+          return acc;
+        },
+        [graphOfComments],
+      );
 
       return {
-        comments: graphOfComments,
+        post: post,
+        comments: commentsWithReplies,
         message: 'Comments found',
         status: 200,
       };
