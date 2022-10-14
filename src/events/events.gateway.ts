@@ -18,9 +18,9 @@ export class EventsGateway
 {
   @WebSocketServer()
   server: Server;
+
   private logger: Logger;
   private activeUsers;
-  private roomid;
 
   constructor() {
     this.logger = new Logger('AppGateway');
@@ -32,29 +32,33 @@ export class EventsGateway
     this.logger.log('Init');
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(`Client connected`);
+  handleConnection(client: Socket) {
+    this.logger.log(`Client connected: ${client.id}`);
+
+    this.server.emit('msgToClient', 'Welcome to the server');
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected`);
+    this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-  @SubscribeMessage('newPost')
-  handleMessage(@MessageBody() payload) {
-    console.log(`UserId: ${payload._id}`);
-    const followers = payload.User.followedUsers;
-    console.log('followed: ', followers);
+  @SubscribeMessage('msgToServer')
+  async handleMessage(@MessageBody() payload: any) {
+    console.log('MESSAGE RECEIVED');
+    console.log(`UserId: ${payload.User._id}`);
+    const followers = payload.User.followers;
+    console.log('followers: ', followers);
 
-    followers.forEach((follower) => {
+    followers.forEach((follower: any) => {
       if (this.activeUsers.get(follower)) {
         console.log('A logged in user found');
         console.log(`socketId: ${this.activeUsers.get(follower)}`);
         this.server
           .to(this.activeUsers.get(follower))
-          .emit('newPost', payload.Post);
+          .emit('msgToClient', payload.Post);
       }
     });
+    this.server.emit('msgToClient', payload.Post);
   }
 
   @SubscribeMessage('loggedIn')

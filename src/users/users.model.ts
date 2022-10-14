@@ -22,6 +22,9 @@ export class User {
   @Prop({ type: [mongoose.Types.ObjectId], ref: 'User', default: [] })
   followedUsers: User[];
 
+  @Prop({ type: [mongoose.Types.ObjectId], ref: 'User', default: [] })
+  followers: User[];
+
   @Prop({ type: String, enum: roles, default: roles.USER })
   userRole: string;
 

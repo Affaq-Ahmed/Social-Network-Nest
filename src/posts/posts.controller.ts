@@ -33,9 +33,14 @@ export class PostsController {
     }
     const response = await this.postService.create(createPostDto);
     if (response) {
-      const socket = io();
-      const payload = { Post: response, User: req.user };
-      socket.emit('newPost', payload);
+      // send notification to all users
+      const socket = io('http://localhost:3000');
+      socket.emit('msgToServer', {
+        message: 'New post created',
+        Post: response,
+        User: req.user,
+      });
+
       return {
         Post: response,
         Message: 'Post created successfully',
@@ -100,7 +105,7 @@ export class PostsController {
   @ApiBearerAuth()
   @Get('feed')
   async feed(@Request() req) {
-    if (!req.user.paid) {
+    if (req.user.paid) {
       return {
         Message: 'You are not allowed to view this content. Buy a subscription',
       };

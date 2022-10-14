@@ -80,11 +80,19 @@ export class UsersService {
         throw new GatewayTimeoutException('Already following');
       }
 
+      if (userToFollow === user._id) {
+        throw new GatewayTimeoutException('You cannot follow yourself');
+      }
+
       const returnedUser = await this.userModel
         .updateOne(
           { _id: user._id },
           { $push: { followedUsers: userToFollow } },
         )
+        .exec();
+
+      const followedUser = await this.userModel
+        .updateOne({ _id: userToFollow }, { $push: { followers: user._id } })
         .exec();
       return returnedUser;
     } catch (error) {
@@ -102,6 +110,10 @@ export class UsersService {
           { _id: user._id },
           { $pull: { followedUsers: userToUnfollow } },
         )
+        .exec();
+
+      const followedUser = await this.userModel
+        .updateOne({ _id: userToUnfollow }, { $pull: { followers: user._id } })
         .exec();
 
       return returnedUser;

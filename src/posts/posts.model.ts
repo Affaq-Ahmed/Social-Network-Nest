@@ -17,9 +17,6 @@ export class Post {
   @Prop({ type: [mongoose.Types.ObjectId], ref: 'User', default: [] })
   likes: User[];
 
-  @Prop({ default: 0 })
-  likesCount: number;
-
   @Prop({ default: false })
   deleted: boolean;
 }
