@@ -29,12 +29,15 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^6.1.2",
     "mongoose": "^6.6.3",
+    "nestjs-stripe": "^1.0.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "soft-delete-plugin-mongoose": "^1.0.15",
+    "stripe": "^10.12.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

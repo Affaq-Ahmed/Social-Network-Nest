@@ -15,6 +15,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { CreateUserDto } from 'src/dto/create-user.dto';
 import { LoginUserDto } from 'src/dto/login-user.dto';
+import { PaymentDto } from 'src/dto/payment.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -79,5 +80,36 @@ export class UsersController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('payment')
+  async payment(@Body() paymentDto: PaymentDto, @Request() req) {
+    return this.userService.payment(paymentDto, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('follow/:id')
+  async follow(@Param('id') id: string, @Request() req) {
+    if (req.user._id === id) {
+      return {
+        Message: 'You cannot follow yourself',
+      };
+    }
+    return this.userService.follow(id, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('unfollow/:id')
+  async unfollow(@Param('id') id: string, @Request() req) {
+    if (req.user._id === id) {
+      return {
+        Message: 'You cannot unfollow yourself',
+      };
+    }
+    return this.userService.unfollow(id, req.user);
   }
 }
